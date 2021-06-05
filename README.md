@@ -1,2 +1,1 @@
-# DLab_Nodejs
-# beginner
+0605->connect to EC2
