@@ -1,0 +1,31 @@
+{
+  "name": "dlab_hw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apoc": "^2.1.6",
+    "bcrypt": "^5.0.1",
+    "cassandra-driver": "^4.6.3",
+    "dotenv": "^10.0.0",
+    "elasticsearch": "^16.7.2",
+    "express": "^4.17.1",
+    "http-status": "^1.5.0",
+    "http-status-codes": "^2.1.4",
+    "jsonwebtoken": "^8.5.1",
+    "level": "^7.0.0",
+    "leveldown": "^6.0.0",
+    "levelup": "^5.0.1",
+    "mysql": "^2.18.1",
+    "nano": "^9.0.3",
+    "nodemon": "^2.0.12",
+    "pg-promise": "^10.10.2",
+    "redis": "^3.1.2",
+    "sqlite3": "^5.0.2"
+  }
+}
