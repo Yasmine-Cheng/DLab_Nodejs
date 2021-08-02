@@ -1,66 +1,107 @@
-const ArticleModel = require('../models/article.model');
+const { createArticle, getAllArticles, updateArticle, deleteArticle, getSingleArticleByID, getAuthorIDbyID } = require("../models/article.model");
 
-// get all article list
-exports.getArticleList = (req, res)=> {
-    //console.log('here all articles list');
-    ArticleModel.getAllArticles((err, articles) =>{
-        console.log('here');
-        if(err)
-        res.send(err);
-        console.log('Articles', articles);
-        res.send(articles)
-    })
-}
-
-// get single article by id
-exports.getSingleArticleByID = (req, res)=> {
-    //console.log('here article by id');
-    ArticleModel.getSingleArticleByID(req.params.id, (err, article) =>{
-        console.log('here');
-        if(err)
-        res.send(err);
-        console.log('Article', article);
-        res.send(article);
-    })
-}
-
-// post new article
-exports.createNewArticle = (req, res) =>{
-    const articleReqData = new ArticleModel(req.body);
-    console.log('articleReqData', articleReqData);
-    // check null
-    if(req.body.constructor === Object && Object.keys(req.body).length === 0){
-        res.send(400).send({success: false, message: 'fill all cols'});
-    }else{
-        ArticleModel.createArticle(articleReqData, (err, article)=>{
-            if(err)
-            res.send(err);
-            res.json({status: true, message: 'Article Posted Successfully', data: article.insertId})
-        })
+module.exports = {
+    createArticle: (req, res) => {
+        if (req.body.author_id == req.decoded.result.account_id){
+            createArticle(req.body, (err, results) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).json({
+                        success: 0,
+                        message: "Database connection error"
+                    });
+                }
+                return res.status(200).json({
+                    success: 1,
+                    data: results
+                });
+            });
+        }
+    },
+    getSingleArticleByID: (req, res) => {
+        getSingleArticleByID(req.params.id, (err, results) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            if (!results) {
+                return res.json({
+                success: 0,
+                message: "Record not Found"
+                });
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+    getAllArticles: (req, res) => {
+        getAllArticles((err, results) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            return res.json({
+                success: 1,
+                data: results
+            });
+        });
+    },
+    updateArticle: (req, res) => {
+        getAuthorIDbyID(req.params.id, (err, results) => {
+            if (err) {
+              console.log(err);
+            }
+            if (!results) {
+              return res.json({
+                success: 0,
+                data: "No this article"
+              });
+            }
+            if (results.author_id == req.decoded.result.account_id){
+                updateArticle(req.body, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    return res.json({
+                        success: 1,
+                        message: "updated successfully"
+                    });
+                });
+            }
+        });
+    },
+    deleteArticle: (req, res) => {
+        getAuthorIDbyID(req.params.id, (err, results) => {
+            if (err) {
+              console.log(err);
+            }
+            if (!results) {
+              return res.json({
+                success: 0,
+                data: "No this article"
+              });
+            }
+            if (results.author_id == req.decoded.result.account_id){
+                deleteArticle(req.params.id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    if (!results) {
+                        return res.json({
+                        success: 0,
+                        message: "Record Not Found"
+                        });
+                    }
+                    return res.json({
+                        success: 1,
+                        message: "article deleted successfully"
+                    });
+                });
+            }
+        });
     }
-}
-
-// update article
-exports.updateArticle = (req, res)=>{
-    const articleReqData = new ArticleModel(req.body);
-    console.log('articleReqData update', articleReqData);
-    // check null
-    if(req.body.constructor === Object && Object.keys(req.body).length === 0){
-        res.send(400).send({success: false, message: 'fill all cols'});
-    }else{
-        ArticleModel.updateArticle(req.params.id, articleReqData, (err, article)=>{
-            if(err)
-            res.send(err);
-            res.json({status: true, message: 'Article updated Successfully'})
-        })
-    }
-}
-
-// delete article
-exports.deleteArticle = (req, res)=>{
-    ArticleModel.deleteArticle(req.params.id, (err, article)=>{
-        if(err)
-        res.send(err);
-        res.json({success:true, message: 'Article deleted successully!'});
-    })
-}
+};

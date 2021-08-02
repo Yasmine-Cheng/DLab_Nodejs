@@ -13,10 +13,12 @@ module.exports = {
           });
         } else {
           req.decoded = decoded;
+          // console.log(req.decoded);
           next();
         }
       });
-    } else {
+    } 
+    else {
       return res.json({
         success: 0,
         message: "Access Denied! Unauthorized User"

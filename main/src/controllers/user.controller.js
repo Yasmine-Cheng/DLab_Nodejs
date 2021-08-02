@@ -1,30 +1,4 @@
-// const { create } = require("../models/user.model");
-
-// const { genSaltSync, hashSync } = require("bcrypt");
-
-// module.exports = {
-//     createUser: (req, res) => {
-//         const body = req.body;
-//         const salt = genSaltSync(10);
-//         body.password = hashSync(body.password, salt);
-//         create(body, (err, results) => {
-//           if (err) {
-//             console.log(err);
-//             return res.status(500).json({
-//               success: 0,
-//               message: "Database connection error"
-//             });
-//           }
-//           return res.status(200).json({
-//             success: 1,
-//             data: results
-//           });
-//         });
-//       }
-// };
-
-
-const {create,getUserByUserEmail,getUserByUserId,getUsers,updateUser,deleteUser,getUserProfile} = require("../models/user.model");
+const { create,getUserByUserEmail,getUserByUserId,getUserProfile,getUsers,updateUser,deleteUser } = require("../models/user.model");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 
@@ -43,7 +17,7 @@ module.exports = {
       }
       return res.status(200).json({
         success: 1,
-        data: results
+        data: body
       });
     });
   },
@@ -63,7 +37,7 @@ module.exports = {
       if (result) {
         results.password = undefined;
         const jsontoken = sign({ result: results }, process.env.JWT_KEY, {
-          expiresIn: "1h"
+          expiresIn: "1 day"
         });
         return res.json({
           success: 1,
@@ -76,6 +50,45 @@ module.exports = {
           data: "Invalid email or password"
         });
       }
+    });
+  },
+  getUserProfile: (req, res) => {
+    const account_id = req.decoded.result.account_id;
+    getUserProfile(account_id, (err, results) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      if (!results) {
+        return res.json({
+          success: 0,
+          message: "Record not Found!!"
+        });
+      }
+      return res.json({
+        success: 1,
+        data: req.decoded.result.profile
+      });
+    });
+  },
+  getUserByUserId: (req, res) => {
+    const id = req.params.id;
+    getUserByUserId(id, (err, results) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      if (!results) {
+        console.log(req);
+        return res.json({
+          success: 0,
+          message: "Record not Found"
+        });
+      }
+      return res.json({
+        success: 1,
+        data: results
+      });
     });
   },
   getUsers: (req, res) => {
@@ -113,53 +126,15 @@ module.exports = {
         return;
       }
       if (!results) {
+        console.log(results)
         return res.json({
-          success: 0,
-          message: "Record Not Found"
+          success: 1,
+          message: "user deleted successfully"
         });
       }
       return res.json({
-        success: 1,
-        message: "user deleted successfully"
-      });
-    });
-  },
-  getUserByUserId: (req, res) => {
-    const id = req.params.id;
-    getUserByUserId(id, (err, results) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      if (!results) {
-        return res.json({
-          success: 0,
-          message: "Record not Found"
-        });
-      }
-      results.password = undefined;
-      return res.json({
-        success: 1,
-        data: results
-      });
-    });
-  },
-  getUserProfile: (req, res) => {
-    const decoded = JSON.parse(JSON.stringify(req.decoded.result));
-    getUserProfile(decoded, (err, results) => {
-      if (err) {
-        console.log(err);
-        return
-      }
-      if (!results) {
-        return res.json({
-          success: 0,
-          message: "Record not Found"
-        });
-      }
-      return res.json({
-        success: 1,
-        data: results.profile
+        success: 0,
+        message: "Record Not Found"
       });
     });
   }
