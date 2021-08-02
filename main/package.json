@@ -12,6 +12,7 @@
     "apoc": "^2.1.6",
     "bcrypt": "^5.0.1",
     "cassandra-driver": "^4.6.3",
+    "crypto": "^1.0.1",
     "dotenv": "^10.0.0",
     "elasticsearch": "^16.7.2",
     "express": "^4.17.1",
