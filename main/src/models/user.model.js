@@ -1,27 +1,3 @@
-// const pool = require("../../config/db.config");
-
-// module.exports = {
-//     create:(data,callback) => {
-//         pool.query(
-//             `insert into account(account_id, email, password, username, profile, photo_link) value(?,?,?,?,?,?,?)`,
-//             [
-//                 data.account_id,	
-//                 data.email,
-//                 data.password,
-//                 data.username,
-//                 data.profile,
-//                 data.photo_link
-//             ],
-//             (error, results, fields) => {
-//                 if (error) {
-//                     return callback(error)
-//                 }
-//                 return callback(null, results)
-//             }
-
-//         );
-//     }
-// };
 const pool = require("../../config/db.config");
 
 module.exports = {
@@ -55,10 +31,10 @@ module.exports = {
       }
     );
   },
-  getUserByUserId: (id, callBack) => {
+  getUserProfile: (decoded, callBack) => {
     pool.query(
-      `select account_id, email, password, username, profile, photo_link from account where account_id = ?`,
-      [id],
+      `select profile from account where account_id = ?`,
+      [decoded],
       (error, results, fields) => {
         if (error) {
           callBack(error);
@@ -67,15 +43,15 @@ module.exports = {
       }
     );
   },
-  getUserProfile: (decoded, callBack) => {
+  getUserByUserId: (id, callBack) => {
     pool.query(
-      `select profile from account where account_id = ?`,
-      [decoded.account_id],
+      `select account_id, email, password, username, profile, photo_link from account where account_id = ?`,
+      [id],
       (error, results, fields) => {
         if (error) {
-          callBack(error);
+          return callBack(error);
         }
-        return callBack(null, results[0]);
+        return callBack(null, results);
       }
     );
   },
@@ -100,13 +76,14 @@ module.exports = {
         data.password,
         data.username,
         data.profile,
-        data.photo_link
+        data.photo_link,
+        data.account_id
     ],
       (error, results, fields) => {
         if (error) {
           callBack(error);
         }
-        return callBack(null, results[0]);
+        return callBack(null, results);
       }
     );
   },
@@ -118,7 +95,7 @@ module.exports = {
         if (error) {
           callBack(error);
         }
-        return callBack(null, results);
+        return callBack(null, results[0]);
       }
     );
   }

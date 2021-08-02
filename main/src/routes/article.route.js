@@ -1,21 +1,10 @@
-const express = require('express');
-const router = express.Router();
-
-const articleController = require('../controllers/article.controller');
-
-//get all articles
-router.get('/',articleController.getArticleList);
-
-//get single article by id
-router.get('/:id',articleController.getSingleArticleByID);
-
-// //post article
-router.post('/', articleController.createNewArticle);
-
-// update article
-router.put('/:id', articleController.updateArticle);
-
-// delete article
-router.delete('/:id',articleController.deleteArticle);
+const router = require("express").Router();
+const { checkToken } = require("../../auth/token_validation");
+const { createArticle, getSingleArticleByID, getAllArticles, updateArticle, deleteArticle } = require("../controllers/article.controller");
+router.post("/", checkToken, createArticle);
+router.get("/:id", getSingleArticleByID);
+router.get("/", getAllArticles);
+router.put("/:id", checkToken, updateArticle);
+router.delete("/:id", checkToken, deleteArticle);
 
 module.exports = router;
