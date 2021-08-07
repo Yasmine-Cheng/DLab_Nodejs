@@ -12,8 +12,19 @@ module.exports = {
             return callBack(null, results[0]);
         });
     },
+    getpremiumbyID: (id, callBack) => {
+        pool.query(
+        `select is_premium from article where id = ?`,
+        [id],
+        (error, results, fields) => {
+            if (error) {
+                callBack(error);
+            }
+            return callBack(null, results[0]);
+        });
+    },
     createArticle: (data, callBack) => {
-    pool.query(
+        pool.query(
         `insert into article(title, content, author_id, is_premium) value(?,?,?,?)`,
         [	
             data.title,

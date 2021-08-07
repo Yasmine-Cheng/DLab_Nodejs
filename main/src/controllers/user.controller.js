@@ -1,6 +1,7 @@
-const { create,getUserByUserEmail,getUserByUserId,getUserProfile,getUsers,updateUser,deleteUser } = require("../models/user.model");
+const { create,getPremiumUsers,getUserByUserEmail,getUserByUserId,getUserProfile,getUsers,updateUser,deleteUser } = require("../models/user.model");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
+const HttpException = require("../../utils/HttpException");
 
 module.exports = {
   createUser: (req, res) => {
@@ -14,11 +15,13 @@ module.exports = {
           success: 0,
           message: "Database connection error"
         });
+        // throw new HttpException(8,500);
       }
       return res.status(200).json({
         success: 1,
         data: body
       });
+      // throw new HttpException(body,200);
     });
   },
   login: (req, res) => {
@@ -32,6 +35,7 @@ module.exports = {
           success: 0,
           data: "Invalid email or password"
         });
+        // return HttpException(2,401);
       }
       const result = compareSync.toString((body.password, results.password));
       if (result) {
@@ -44,13 +48,37 @@ module.exports = {
           message: "login successfully",
           token: jsontoken
         });
+        // throw new HttpException(9,200,jsontoken);
       } else {
         return res.json({
           success: 0,
           data: "Invalid email or password"
         });
+        // throw new HttpException(2,401);
       }
     });
+  },
+  getPremiumUsers: (req, res) => {
+    if (req.decoded.result.role == 1){
+        getPremiumUsers((err, results) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        return res.json({
+          success: 1,
+          data: results
+        });
+        // throw new HttpException(results,200);
+      });
+    } 
+    else {
+      return res.json({
+        success: 0,
+        message: "Upgrade to Premium First XD ~"
+      });
+      // throw new HttpException(2,401);
+    }
   },
   getUserProfile: (req, res) => {
     const account_id = req.decoded.result.account_id;
@@ -64,11 +92,13 @@ module.exports = {
           success: 0,
           message: "Record not Found!!"
         });
+        // throw new HttpException(0,404);
       }
       return res.json({
         success: 1,
         data: req.decoded.result.profile
       });
+      // throw new HttpException(req.decoded.result.profile,200);
     });
   },
   getUserByUserId: (req, res) => {
@@ -84,11 +114,13 @@ module.exports = {
           success: 0,
           message: "Record not Found"
         });
+        // throw new HttpException(0,404);
       }
       return res.json({
         success: 1,
         data: results
       });
+      // throw new HttpException(results,200);
     });
   },
   getUsers: (req, res) => {
@@ -101,6 +133,7 @@ module.exports = {
         success: 1,
         data: results
       });
+      // throw new HttpException(results,200);
     });
   },
   updateUsers: (req, res) => {
@@ -116,6 +149,7 @@ module.exports = {
         success: 1,
         message: "updated successfully"
       });
+      // throw new HttpException(9,200);
     });
   },
   deleteUser: (req, res) => {
@@ -131,6 +165,7 @@ module.exports = {
           success: 1,
           message: "user deleted successfully"
         });
+        // throw new HttpException(0,404);
       }
       return res.json({
         success: 0,
