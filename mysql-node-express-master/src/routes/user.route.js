@@ -24,7 +24,7 @@ router.post('/bookmark', auth(), bookmarkSchema, awaitHandlerFactory(userControl
 // bookmark
 router.post('/deletebookmark', auth(), bookmarkSchema, awaitHandlerFactory(userController.deletebookmarkUser)); // localhost:3000/api/v1/users/id/1
 // bookmark
-router.post('/like', auth(), likeSchema, awaitHandlerFactory(userController.likeUser)); // localhost:3000/api/v1/users/id/1
+router.post('/:tablename', auth(), likeSchema, awaitHandlerFactory(userController.likelike)); // localhost:3000/api/v1/users/id/1
 // like
 
 

@@ -74,7 +74,9 @@ class ArticleController {
 
         const { confirm_password, ...restOfUpdates } = req.body;
 
-        if (req.currentUser.id == userWithoutPassword.author_id){
+        const article = await ArticleModel.findOne({ id: req.params.id });
+
+        if (req.currentUser.id == article.author_id){
             const result = await ArticleModel.update(restOfUpdates, req.params.id);
 
             if (!result) {
@@ -90,24 +92,11 @@ class ArticleController {
         }   else    {
                 throw new HttpException(401, 'Authentication failed!');
         }
-        // // do the update query and get the result
-        // // it can be partial edit
-        // const result = await ArticleModel.update(restOfUpdates, req.params.id);
-
-        // if (!result) {
-        //     throw new HttpException(404, 'Something went wrong');
-        // }
-
-        // const { affectedRows, changedRows, info } = result;
-
-        // const message = !affectedRows ? 'Article not found' :
-        //     affectedRows && changedRows ? 'Article updated successfully' : 'Updated faild';
-
-        // res.send({ message, info });
     };
 
     deleteArticle = async (req, res, next) => {
-        if (req.currentUser.id == userWithoutPassword.author_id){
+        const article = await ArticleModel.findOne({ id: req.params.id });
+        if (req.currentUser.id == article.author_id){
             const result = await ArticleModel.delete(req.params.id);
             if (!result) {
                 throw new HttpException(404, 'Article not found');
@@ -116,11 +105,6 @@ class ArticleController {
         }   else    {
                 throw new HttpException(401, 'Authentication failed!');
         }
-        // const result = await ArticleModel.delete(req.params.id);
-        // if (!result) {
-        //     throw new HttpException(404, 'Article not found');
-        // }
-        // res.send('Article has been deleted');
     };
 
     checkValidation = (req) => {

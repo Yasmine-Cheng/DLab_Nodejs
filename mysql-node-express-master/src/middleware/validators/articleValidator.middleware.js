@@ -26,7 +26,9 @@ exports.createArticleSchema = [
     body('is_premium')
         .optional()
         .isIn([0,1])
-        .withMessage('Invalid Role type')
+        .withMessage('Invalid Role type'),
+    body('tag')
+        .optional(),
 ];
 
 exports.updateArticleSchema = [
@@ -52,6 +54,8 @@ exports.updateArticleSchema = [
         .optional()
         .isIn([0,1])
         .withMessage('Invalid Role type'),
+    body('tag')
+        .optional(),
     body()
         .custom(value => {
             return !!Object.keys(value).length;

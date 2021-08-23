@@ -1,8 +1,8 @@
 const query = require('../db/db-connection');
 const { multipleColumnSet } = require('../utils/common.utils');
 const Role = require('../utils/userRoles.utils');
-class ArticleModel {
-    tableName = 'article';
+class CommentModel {
+    tableName = 'comment';
 
     find = async (params = {}) => {
         let sql = `SELECT * FROM ${this.tableName}`;
@@ -25,15 +25,24 @@ class ArticleModel {
 
         const result = await query(sql, [...values]);
 
-        // return back the first row (user)
         return result[0];
     }
+    findReply = async (params) => {
+        const { values } = multipleColumnSet(params)
 
-    create = async ({ title, content, author_id, is_premium= 0 ,tag= 0}) => {
+        const sql = `SELECT * FROM ${this.tableName}
+        WHERE parent_id=?`;
+
+        const result = await query(sql, [...values]);
+
+        return result;
+    }
+
+    create = async ({ content, user_id, parent_id=null, article_id}) => {
         const sql = `INSERT INTO ${this.tableName}
-        (title, content, author_id, is_premium,tag) VALUES (?,?,?,?,?)`;
+        (content, user_id, parent_id, article_id) VALUES (?,?,?,?)`;
 
-        const result = await query(sql, [title, content, author_id, is_premium,tag]);
+        const result = await query(sql, [content, user_id, parent_id, article_id]);
         const affectedRows = result ? result.affectedRows : 0;
 
 
@@ -43,7 +52,7 @@ class ArticleModel {
     update = async (params, id) => {
         const { columnSet, values } = multipleColumnSet(params)
 
-        const sql = `UPDATE article SET ${columnSet} WHERE id = ?`;
+        const sql = `UPDATE comment SET ${columnSet} WHERE id = ?`;
 
         const result = await query(sql, [...values, id]);
 
@@ -60,4 +69,4 @@ class ArticleModel {
     }
 }
 
-module.exports = new ArticleModel;
+module.exports = new CommentModel;
