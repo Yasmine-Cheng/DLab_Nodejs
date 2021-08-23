@@ -41,11 +41,11 @@ class UserModel {
     //     return result[0];
     // }
 
-    create = async ({ email, password, username, profile, photo_link, role= 0 }) => {
+    create = async ({ email, password, username, profile, photo_link, role= 0 ,club_id= 1}) => {
         const sql = `INSERT INTO ${this.tableName}
-        (email, password, username, profile, photo_link, role) VALUES (?,?,?,?,?,?)`;
+        (email, password, username, profile, photo_link, role, club_id) VALUES (?,?,?,?,?,?,?)`;
 
-        const result = await query(sql, [email, password, username, profile, photo_link, role]);
+        const result = await query(sql, [email, password, username, profile, photo_link, role, club_id]);
         const affectedRows = result ? result.affectedRows : 0;
 
         return affectedRows;
@@ -69,13 +69,21 @@ class UserModel {
         return affectedRows;
     }
 
-    likelike = async (account_id, article_id, count) => {
-        const sql = `INSERT INTO likelike (account_id, article_id, count) VALUES (?,?,?)`;
-
-        const result = await query(sql, [account_id, article_id, count]);
-        const affectedRows = result ? result.affectedRows : 0;
-
-        return affectedRows;
+    likelike = async (tablename, a, b, clap) => {
+        if (tablename == 'likearticle'){
+            const sql = `INSERT INTO likearticle (account_id, article_id, clap) VALUES (?,?,?)`;    
+            const result = await query(sql, [a, b, clap]);
+            const affectedRows = result ? result.affectedRows : 0;
+    
+            return affectedRows;
+        }
+        if (tablename == 'likecomment'){
+            const sql = `INSERT INTO likecomment (user_id, comment_id, clap) VALUES (?,?,?)`;    
+            const result = await query(sql, [a, b, clap]);
+            const affectedRows = result ? result.affectedRows : 0;
+    
+            return affectedRows;
+        }
     }
 
     createBookmark = async (account_id, article_id) => {
