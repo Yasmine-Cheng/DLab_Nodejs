@@ -1,5 +1,6 @@
 const UserModel = require('../models/user.model');
 const ArticleModel = require('../models/article.model');
+const CommentModel = require('../models/comment.model');
 const HttpException = require('../utils/HttpException.utils');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
@@ -197,29 +198,60 @@ class UserController {
     };
 
 
-    likeUser = async (req, res, next) => {
-        const article = await ArticleModel.findOne({ id: req.body.article_id });
-        if (!article) {
-            throw new HttpException(404, 'Article not found');
+    likelike = async (req, res, next) => {
+        const target = req.params.tablename
+        if (target=='likearticle'){
+
+            const article = await ArticleModel.findOne({ id: req.body.article_id });
+            if (!article) {
+                throw new HttpException(404, 'Article not found');
+            }
+            const user = await UserModel.findOne({ id: req.currentUser.id });
+            if (!user) {
+                throw new HttpException(404, 'User not found');
+            }
+    
+            const { password, ...userWithoutPassword } = user;
+    
+            this.checkValidation(req);
+    
+            await this.hashPassword(req);
+
+            const result = await UserModel.likelike(target, parseInt(req.currentUser.id), parseInt(req.body.article_id), parseInt(req.body.clap));
+    
+            if (!result) {
+                throw new HttpException(500, 'Something went wrong');
+            }
+    
+            res.status(201).send('Like Article was created!');
+            
         }
-        const user = await UserModel.findOne({ id: req.currentUser.id });
-        if (!user) {
-            throw new HttpException(404, 'User not found');
+        if (target=='likecomment'){
+
+            const comment= await CommentModel.findOne({ id: req.body.comment_id });
+            if (!comment) {
+                throw new HttpException(404, 'Comment not found');
+            }
+            const user = await UserModel.findOne({ id: req.currentUser.id });
+            if (!user) {
+                throw new HttpException(404, 'User not found');
+            }
+    
+            const { password, ...userWithoutPassword } = user;
+    
+            this.checkValidation(req);
+    
+            await this.hashPassword(req);
+    
+            const result = await UserModel.likelike(target, parseInt(req.currentUser.id), parseInt(req.body.comment_id), parseInt(req.body.clap));
+    
+            if (!result) {
+                throw new HttpException(500, 'Something went wrong');
+            }
+    
+            res.status(201).send('Like Comment was created!');
+            
         }
-
-        const { password, ...userWithoutPassword } = user;
-
-        this.checkValidation(req);
-
-        await this.hashPassword(req);
-
-        const result = await UserModel.likelike(parseInt(req.currentUser.id), parseInt(req.body.article_id), parseInt(req.body.count));
-
-        if (!result) {
-            throw new HttpException(500, 'Something went wrong');
-        }
-
-        res.status(201).send('Bookmark was created!');
     };
 
     userLogin = async (req, res, next) => {

@@ -162,6 +162,8 @@ exports.createUserSchema = [
         .optional()
         .isIn([0,1])
         .withMessage('Invalid Role type'),
+    body('club_id')
+        .optional(),
     body('confirm_password')
         .exists()
         .custom((value, { req }) => value === req.body.password)
@@ -183,13 +185,10 @@ exports.bookmarkSchema = [
 ];
 
 exports.likeSchema = [
-    body('article_id')
+    body('clap')
         .exists()
-        .withMessage('article_id is required')
-        .notEmpty(),
-    body('count')
-        .exists()
-        .withMessage('count is required')
+        .isNumeric()
+        .withMessage('clap is required')
 ];
 
 
@@ -228,6 +227,8 @@ exports.updateUserSchema = [
         .optional()
         .isIn([0,1])
         .withMessage('Invalid Role type'),
+    body('club_id')
+        .optional(),
     body('confirm_password')
         .optional()
         .custom((value, { req }) => value === req.body.password)
