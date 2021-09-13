@@ -29,6 +29,15 @@ class ArticleModel {
         return result[0];
     }
 
+    findPageArticle = async (articleCount, perpage) => {
+        const sql = `SELECT * FROM ${this.tableName}
+        limit ?,?`;
+
+        const result = await query(sql, [articleCount, perpage]);
+        
+        return result;
+    }
+
     create = async ({ title, content, author_id, is_premium= 0 ,tag= 0}) => {
         const sql = `INSERT INTO ${this.tableName}
         (title, content, author_id, is_premium,tag) VALUES (?,?,?,?,?)`;

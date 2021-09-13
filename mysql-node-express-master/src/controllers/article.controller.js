@@ -23,7 +23,8 @@ class ArticleController {
         // const user = UserModel.findOne({ id: jwt.verify(req.headers.authorization.replace('Bearer ', ''), process.env.SECRET_JWT || "").user_id });
         const authHeader = req.headers.authorization;
         const token = authHeader.replace('Bearer ', '');
-        const secretKey = process.env.SECRET_JWT || "";
+        // const secretKey = process.env.SECRET_JWT || "";
+        const secretKey = "secret";
         const decoded = jwt.verify(token, secretKey);
         const nowuser = await UserModel.findOne({ id: parseInt(decoded.user_id) });
         if (!nowuser) {
@@ -38,6 +39,36 @@ class ArticleController {
         }
     };
 
+    getPageOfArticle = async (req, res, next) => {
+        let currentPage = parseInt(req.params.page);
+        let articleList = await ArticleModel.find();
+        if(!articleList.length){
+            throw new HttpException(404, 'Article not found');
+        }
+        const totalArticle = articleList.length;
+        const perpage = 3;
+        const pageTotal = Math.ceil(totalArticle/perpage);
+        if(currentPage>pageTotal){
+            currentPage=pageTotal
+        }
+
+        const articleCount = (currentPage-1)*perpage;
+        const articlePerPage = await ArticleModel.findPageArticle(articleCount, perpage);
+        if (!articlePerPage.length){
+            throw new HttpException(404, 'not found')
+        } 
+        
+        res.json({status:0, code:200, data: articlePerPage, pagination:{
+            total_article:totalArticle,
+            total_pages: pageTotal,
+            current_page: currentPage,
+            has_pre: currentPage > 1,
+            has_next: currentPage < pageTotal,
+            category: null
+            }
+        })
+    };
+        
     getArticleById = async (req, res, next) => {
         const article = await ArticleModel.findOne({ id: req.params.id });
         if (!article) {
@@ -105,6 +136,36 @@ class ArticleController {
         }   else    {
                 throw new HttpException(401, 'Authentication failed!');
         }
+    };
+
+    userLogin = async (req, res, next) => {
+        this.checkValidation(req);
+
+        const { email, password: pass } = req.body;
+
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            throw new HttpException(401, 'Unable to login!');
+        }
+
+        // const isMatch = await 
+        bcrypt.compare(pass, user.password);
+        const isMatch = bcrypt.compare(pass, user.password);
+
+        if (!isMatch) {
+            throw new HttpException(401, 'Incorrect password!');
+        }
+
+        // user matched!
+        // const secretKey = process.env.SECRET_JWT || "";
+        const secretKey = "secret";
+        const token = jwt.sign({ user_id: user.id.toString() }, secretKey, {
+            expiresIn: '24h'
+        });
+
+        const { password, ...userWithoutPassword } = user;
+
+        res.send({ ...userWithoutPassword, token });
     };
 
     checkValidation = (req) => {

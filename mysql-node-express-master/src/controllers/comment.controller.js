@@ -19,8 +19,17 @@ class CommentController {
         }
         res.send(JSON.parse(JSON.stringify(commentList)))
     };
+
     getCommentById = async (req, res, next) => {
-        const comment = await CommentModel.findReply({ id: req.params.id });
+        const article = await ArticleModel.findOne({ id: req.params.article_id });
+        if (!article) {
+            throw new HttpException(404, 'Article not found');
+        }
+        const reply = await CommentModel.findOne({ id:req.params.parent_id });
+        if (!reply) {
+            throw new HttpException(404, 'Reply not found');
+        }
+        const comment = await CommentModel.findReply({ article_id: req.params.article_id, parent_id: req.params.parent_id});
         if (!comment) {
             throw new HttpException(404, 'Comment not found');
         }
@@ -28,9 +37,30 @@ class CommentController {
         if (!commentList.length) {
             throw new HttpException(404, 'Comments not found');
         }
+        const clap = await CommentModel.findClap({ id:req.params.parent_id });
+        if (!clap) {
+            throw new HttpException(404, 'Clap not found');
+        }
+        const self_clap = await CommentModel.findSelfClap({ comment_id:req.params.parent_id, user_id:reply.user_id});
+        let self_clap_count = 0;
+        if (self_clap){
+            self_clap_count+1;
+        }
+        
         const { password, ...userWithoutPassword } = comment;
-        res.send(userWithoutPassword);
+        // res.send({"Replies":userWithoutPassword,"Reply_Count":Object.keys(userWithoutPassword).length,"Clap_Count":clap[0]});
+        res.send({"data":[{"comment_id":reply.id,
+                            "article_id":reply.article_id,
+                            "author_id":reply.user_id,
+                            "content":reply.content,
+                            "created_at":reply.timestamp,
+                            "updated_at":reply.updated_time,
+                            "reply_count":comment.length,
+                            "clap_count":clap,
+                            "self_clap_count":self_clap_count,
+                            "replies":comment}]});
     };
+
     createComment = async (req, res, next) => {
         this.checkValidation(req);
 
@@ -91,6 +121,7 @@ class CommentController {
             throw new HttpException(400, 'Validation faild', errors);
         }
     };
+
     hashPassword = async (req) => {
         if (req.body.password) {
             req.body.password = await bcrypt.hash(req.body.password, 8);

@@ -255,6 +255,7 @@ class UserController {
     };
 
     userLogin = async (req, res, next) => {
+        console.log('aaa')
         this.checkValidation(req);
 
         const { email, password: pass } = req.body;
@@ -263,7 +264,7 @@ class UserController {
         if (!user) {
             throw new HttpException(401, 'Unable to login!');
         }
-
+        console.log(user)
         // const isMatch = await 
         bcrypt.compare(pass, user.password);
         const isMatch = bcrypt.compare(pass, user.password);
@@ -273,7 +274,8 @@ class UserController {
         }
 
         // user matched!
-        const secretKey = process.env.SECRET_JWT || "";
+        // const secretKey = process.env.SECRET_JWT || "";
+        const secretKey = "secret";
         const token = jwt.sign({ user_id: user.id.toString() }, secretKey, {
             expiresIn: '24h'
         });
